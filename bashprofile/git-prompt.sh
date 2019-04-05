@@ -1,0 +1,1 @@
+/Users/prughani/Dropbox/Scripts/Bash_terminal/git-prompt.sh
