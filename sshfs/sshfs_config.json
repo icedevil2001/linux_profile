@@ -5,16 +5,16 @@
 			"reconnect" ,
 			"follow_symlinks"
 		],
-		"location": "/Users/prughani/media/"
+		"location": "/Users/icedevil2001/media/"
 	},
 	"aws":{
 		"o":
 		[	
 			"reconnect" ,
 			"follow_symlinks",
-			"IdentityFile=~/.ssh/universal/id_rsa"
+			"IdentityFile=~/.ssh/others/id_rsa"
 		],
-		"location": "/Users/prughani/media/"
+		"location": "/Users/icedevil2001/media/"
 		
 	}
 }
