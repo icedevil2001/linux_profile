@@ -16,6 +16,9 @@ map <leader>rr :source ~/.vimrc<CR>
 nnoremap p p=`]<C-o>
 nnoremap P P=`]<C-o>
 
+" Toggle spell check.
+map <F2> :setlocal spell!<CR>
+
 " F3 paste mode on and off
 set pastetoggle=<F3>   " set paste on and off
 
@@ -32,6 +35,8 @@ map <F5> :GitGutterToggle<CR>
 " F6 Git Highlight Toggle
 map <F6> :GitGutterLineHighlightsToggle<CR>
 
+" Clear search highlights with space +space
+map <Leader><Space> :let @/=''<CR>
 
 " Copy the relative path of the current file to the clipboard
 nmap <Leader>cf :silent !echo -n % \| pbcopy<Enter>
@@ -46,6 +51,33 @@ function! StripWhitespace()
     call setreg('/', old_query)
 endfunction
 noremap <leader>ss :call StripWhitespace()<CR>
+
+" Navigate around splits with a single key combo.
+nnoremap <C-l> <C-w><C-l>
+nnoremap <C-h> <C-w><C-h>
+nnoremap <C-k> <C-w><C-k>
+nnoremap <C-j> <C-w><C-j>
+
+" Cycle through splits with tab .
+nnoremap <S-Tab> <C-w>w
+
+" Press * to search for the term under the cursor or a visual selection and
+" then press a key below to replace all instances of it in the current file.
+nnoremap <Leader>r :%s///g<Left><Left>
+nnoremap <Leader>rc :%s///gc<Left><Left><Left>
+
+" The same as above but instead of acting on the whole file it will be
+" restricted to the previously visually selected range. You can do that by
+" pressing *, visually selecting the range you want it to apply to and then
+" press a key below to replace all instances of it in the current selection.
+xnoremap <Leader>r :s///g<Left><Left>
+xnoremap <Leader>rc :s///gc<Left><Left><Left>
+
+
+" Automatically fix the last misspelled word and jump back to where you were.
+"   Taken from this talk: https://www.youtube.com/watch?v=lwD8G1P52Sk
+nnoremap <leader>sp :normal! mz[s1z=`z<CR>
+
 
 " Automatic commands
 if has("autocmd")
@@ -89,6 +121,8 @@ Plug 'junegunn/seoul256.vim'
 Plug 'preservim/nerdtree'
 " NerdTree plugin Grep
 Plug 'MarSoft/nerdtree-grep-plugin'
+" Copy full path from Nerdtree use 'mb' to copy 
+Plug 'mortonfox/nerdtree-clip'
 
 " Tmux
 Plug 'tmux-plugins/vim-tmux'
@@ -116,6 +150,18 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 " Git
 Plug 'airblade/vim-gitgutter'
+
+" Auto complete text/code
+Plug 'vim-scripts/AutoComplPop'
+
+" Briefly highlight which text was yanked.
+Plug 'machakann/vim-highlightedyank'
+
+" Add spelling errors to the quickfix list (vim-ingo-library is a dependency).
+Plug 'inkarkat/vim-ingo-library' | Plug 'inkarkat/vim-SpellCheck'
+
+" csv
+Plug 'chrisbra/csv.vim'
 
 " List ends here. Plugins become visible to Vim after this call.
 call plug#end()
@@ -165,6 +211,13 @@ highlight! link SignColumn LineNr
 " or you could do this:
 "highlight SignColumn guibg=whatever ctermbg=whatever
 
+" ================ kite autocomplete ================
+
+"let g:kite_auto_complete=1
+"let g:kite_supported_languages = ['python', 'javascript', 'go']
+"set completeopt+=menuone   " show the popup menu even when there is only 1 match
+"set completeopt+=noinsert  " don't insert any text until user chooses a match
+"set completeopt-=longest   " don't insert the longest common text
 
 " ================ General Config ====================
 
@@ -246,6 +299,47 @@ nnoremap <silent> <Leader>v :NERDTreeFind<CR>
 
 "
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | exe 'cd '.argv()[0] | endif
+
+" ============== AutoComplPop ================
+set shortmess+=c
+set showmatch
+set spelllang=en_us
+set complete+=kspell
+set completeopt=menuone,longest
+
+" Navigate the complete menu items like CTRL+n / CTRL+p would.
+inoremap <expr> <Down> pumvisible() ? "<C-n>" :"<Down>"
+inoremap <expr> <Up> pumvisible() ? "<C-p>" : "<Up>"
+
+" Select the complete menu item like CTRL+y would.
+inoremap <expr> <Right> pumvisible() ? "<C-y>" : "<Right>"
+inoremap <expr> <CR> pumvisible() ? "<C-y>" :"<CR>"
+
+" Cancel the complete menu item like CTRL+e would.
+inoremap <expr> <Left> pumvisible() ? "<C-e>" : "<Left>"
+
+
+" =============== TODO =======================
+" https://github.com/nickjj/dotfiles/blob/master/.vimrc
+" Add all TODO items to the quickfix list relative to where you opened Vim.
+function! s:todo() abort
+  let entries = []
+  for cmd in ['git grep -niIw -e TODO -e FIXME 2> /dev/null',
+            \ 'grep -rniIw -e TODO -e FIXME . 2> /dev/null']
+    let lines = split(system(cmd), '\n')
+    if v:shell_error != 0 | continue | endif
+    for line in lines
+      let [fname, lno, text] = matchlist(line, '^\([^:]*\):\([^:]*\):\(.*\)')[1:3]
+      call add(entries, { 'filename': fname, 'lnum': lno, 'text': text })
+    endfor
+    break
+  endfor
+
+  if !empty(entries)
+    call setqflist(entries)
+    copen
+  endif
+endfunction
 
 " ============== Bottom bar status =============
 "Status-line
