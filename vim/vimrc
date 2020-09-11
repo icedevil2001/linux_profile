@@ -78,6 +78,10 @@ xnoremap <Leader>rc :s///gc<Left><Left><Left>
 "   Taken from this talk: https://www.youtube.com/watch?v=lwD8G1P52Sk
 nnoremap <leader>sp :normal! mz[s1z=`z<CR>
 
+filetype on
+filetype plugin on
+filetype indent on
+syntax on
 
 " Automatic commands
 if has("autocmd")
@@ -161,8 +165,8 @@ Plug 'machakann/vim-highlightedyank'
 Plug 'inkarkat/vim-ingo-library' | Plug 'inkarkat/vim-SpellCheck'
 
 " csv
-Plug 'chrisbra/csv.vim'
-
+"Plug 'chrisbra/csv.vim'
+Plug 'mechatroner/rainbow_csv'
 " List ends here. Plugins become visible to Vim after this call.
 call plug#end()
 
@@ -220,8 +224,6 @@ highlight! link SignColumn LineNr
 "set completeopt-=longest   " don't insert the longest common text
 
 " ================ General Config ====================
-
-syntax on
 set autoread                    "Reload files changed outside vim
 set number                      "Line numbers are good
 set backspace=indent,eol,start  "Allow backspace in insert mode
@@ -274,7 +276,17 @@ au BufNewFile,BufRead Snakefile set syntax=snakemake
 au BufNewFile,BufRead *.smk set syntax=snakemake
 
 "csv formatting
-au! BufNewFile,BufRead *.csv setf csv
+"autocmd BufNewFile,BufRead *.csv   set filetype=csv_semicolon
+" autocmd BufNewFile,BufRead *.dat   set filetype=csv_pipe
+" au! BufNewFile,BufRead *.csv setf csv
+"if exists("did_load_csvfiletype")
+"  finish
+"endif
+"let did_load_csvfiletype=1
+"
+"augroup filetypedetect
+"  au! BufRead,BufNewFile *.csv,*.dat	setfiletype csv
+"augroup END
 
 " ================ Persistent Undo ==================
 
